@@ -1,5 +1,12 @@
 language: java
 jdk:
-- openjdk11
+- openjdk8
+
+addons:
+  sonarcloud:
+    organization: fabianoveglianti
+    token: 0f70b040e8c0d174f38e7175ab9ede8265dd704e
+
 script:
--maven clean package -DskipTests
+  # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=FabianoVeglianti_bookkeeper
