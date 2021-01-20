@@ -71,6 +71,7 @@
     <module>shaded</module>
     <module>microbenchmarks</module>
     <module>tests</module>
+    <module>my_tests</module>
   </modules>
   <mailingLists>
     <mailingList>
@@ -105,6 +106,7 @@
     </developer>
   </developers>
   <properties>
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <javac.target>1.8</javac.target>
@@ -200,6 +202,15 @@
     <spotbugs-maven-plugin.version>3.1.8</spotbugs-maven-plugin.version>
     <forkCount.variable>1</forkCount.variable>
     <servlet-api.version>4.0.0</servlet-api.version>
+
+    <!-- Sonar -->
+    <aggregate.report.dir>my_tests/target/site/jacoco-aggregate/jacoco.xml</aggregate.report.dir>
+    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+    <sonar.language>java</sonar.language>
+
+
+
   </properties>
 
   <!-- dependency definitions -->
@@ -816,6 +827,11 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>org.sonarsource.scanner.maven</groupId>
+          <artifactId>sonar-maven-plugin</artifactId>
+          <version>3.7.0.1746</version>
+        </plugin>
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
           <version>${maven-checkstyle-plugin.version}</version>
@@ -1019,128 +1035,50 @@
           <consoleOutput>true</consoleOutput>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   <profiles>
     <profile>
-      <!-- profile used by jenkins CI -->
-      <id>code-coverage</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.eluder.coveralls</groupId>
-            <artifactId>coveralls-maven-plugin</artifactId>
-            <version>${coveralls-maven-plugin.version}</version>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>${maven-surefire-plugin.version}</version>
-            <configuration>
-              <!-- @{argLine} is a variable injected by JaCoCo-->
-              <argLine>@{argLine} -Xmx2G -Djava.net.preferIPv4Stack=true</argLine>
-              <redirectTestOutputToFile>${redirectTestOutputToFile}</redirectTestOutputToFile>
-              <forkCount>${forkCount.variable}</forkCount>
-              <reuseForks>false</reuseForks>
-              <forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
-              <!-- we want build to complete even in case of failures -->
-              <testFailureIgnore>true</testFailureIgnore>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.8.6</version>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>prepare-agent</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <!-- the profiles below are only for development purpose -->
-    <profile>
-      <id>dev</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>${maven-surefire-plugin.version}</version>
-            <configuration>
-              <argLine>-Xmx2G -Djava.net.preferIPv4Stack=true</argLine>
-              <redirectTestOutputToFile>false</redirectTestOutputToFile>
-              <forkCount>${forkCount.variable}</forkCount>
-              <reuseForks>false</reuseForks>
-              <forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
-              <trimStackTrace>false</trimStackTrace>
-              <rerunFailingTestsCount>0</rerunFailingTestsCount>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>dev-debug</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>${maven-surefire-plugin.version}</version>
-            <configuration>
-              <argLine>-Xmx2G -Djava.net.preferIPv4Stack=true -Dbookkeeper.root.logger=DEBUG,CONSOLE</argLine>
-              <redirectTestOutputToFile>false</redirectTestOutputToFile>
-              <forkCount>${forkCount.variable}</forkCount>
-              <reuseForks>false</reuseForks>
-              <forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
-              <trimStackTrace>false</trimStackTrace>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>jdk11-no-spotbugs</id>
+      <id>coverage</id>
       <activation>
-        <jdk>[11,)</jdk>
+        <activeByDefault>true</activeByDefault>
       </activation>
       <build>
-        <plugins>
-           <plugin>
-             <groupId>com.github.spotbugs</groupId>
-             <artifactId>spotbugs-maven-plugin</artifactId>
-             <configuration>
-                 <skip>true</skip>
-             </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>apache-release</id>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>source-release-assembly</id>
-                <configuration>
-                  <!-- we have a dedicated distribution module in bookkeeper-dist -->
-                  <skipAssembly>true</skipAssembly>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.jacoco</groupId>
+              <artifactId>jacoco-maven-plugin</artifactId>
+              <executions>
+                <execution>
+                  <id>report</id>
+                  <phase>verify</phase>
+                  <goals>
+                    <goal>report-aggregate</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+          </plugins>
+        </pluginManagement>
       </build>
     </profile>
   </profiles>
