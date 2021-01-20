@@ -9,4 +9,4 @@ addons:
 
 script:
   # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
-  - mvn -DskipTests -DfailIfNoTests=false clean verify org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=FabianoVeglianti_bookkeeper
+  - mvn '-Dtest=org.apache.bookkeper.mytests.*Test' -DfailIfNoTests=false clean verify -e org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=FabianoVeglianti_bookkeeper
