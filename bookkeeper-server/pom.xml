@@ -262,13 +262,13 @@
         <version>${jacoco-maven-plugin.version}</version>
         <executions>
           <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
             <configuration>
               <destFile>${basedir}/target/jacoco.exec</destFile>
               <propertyName>argLine</propertyName>
             </configuration>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
           </execution>
           <execution>
             <id>report</id>
@@ -287,7 +287,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${maven-surefire-plugin.version}</version>
         <configuration>
-          <argLine>-Xmx2G -Djava.net.preferIPv4Stack=true -Dio.netty.leakDetection.level=paranoid</argLine>
+          <argLine>@{argLine} -Xmx2G -Djava.net.preferIPv4Stack=true -Dio.netty.leakDetection.level=paranoid</argLine>
           <redirectTestOutputToFile>${redirectTestOutputToFile}</redirectTestOutputToFile>
           <forkCount>${forkCount.variable}</forkCount>
           <reuseForks>false</reuseForks>
