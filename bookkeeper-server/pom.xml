@@ -187,6 +187,12 @@
       <version>${project.parent.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.pitest</groupId>
+      <artifactId>pitest-maven</artifactId>
+      <version>1.6.2</version>
+      <type>maven-plugin</type>
+    </dependency>
   </dependencies>
 
   <build>
@@ -296,6 +302,51 @@
           <rerunFailingTestsCount>${testRetryCount}</rerunFailingTestsCount>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+        <version>1.6.2</version>
+        <configuration>
+          <targetClasses>
+            <param>org.apache.bookkeeper.bookie.storage.ldb.WriteCache</param>
+            <param>org.apache.bookkeeper.bookie.storage.ldb.LedgerMetadataIndex</param>
+          </targetClasses>
+          <targetTests>
+            <param>org.apache.bookkeeper.mytests.WriteCachePutTest</param>
+            <param>org.apache.bookkeeper.mytests.WriteCacheGetTest</param>
+            <param>org.apache.bookkeeper.mytests.LedgerMetadataIndexSetTest</param>
+            <param>org.apache.bookkeeper.mytests.LedgerMetadataIndexGetTest</param>
+            <param>org.apache.bookkeeper.mytests.LedgerMetadataIndexSetFencedTest</param>
+            <param>org.apache.bookkeeper.mytests.LedgerMetadataIndexSetMasterKeyTest</param>
+          </targetTests>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>mutation</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.pitest</groupId>
+              <artifactId>pitest-maven</artifactId>
+              <executions>
+                <execution>
+                  <id>pit-report</id>
+                  <goals>
+                    <goal>mutationCoverage</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+  </profiles>
 </project>

@@ -13,6 +13,7 @@ import org.junit.runners.Parameterized;
 import org.apache.bookkeeper.bookie.storage.ldb.DbLedgerStorageDataFormats.LedgerData;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -22,8 +23,7 @@ import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(value = Parameterized.class)
 public class LedgerMetadataIndexSetFencedTest
@@ -36,7 +36,7 @@ public class LedgerMetadataIndexSetFencedTest
     private LedgerMetadataIndexGetInstance ledgerMetadataIndexGetInstance;
     private boolean isAlreadyFenced;
 
-    @Mock
+    @Spy
     private LedgerMetadataIndex ledgerMetadataIndex;
 
 
@@ -87,16 +87,16 @@ public class LedgerMetadataIndexSetFencedTest
         }
         boolean actualValue;
         if(ledgerDeleted) {
+            ledgerMetadataIndex = spy(ledgerMetadataIndex);
             when(ledgerMetadataIndex.get(ledgerId)).thenAnswer(new Answer<LedgerData>() {
                 @Override
                 public LedgerData answer(InvocationOnMock invocation) throws Throwable {
-                    LedgerData ledgerData = ledgerMetadataIndex.get(ledgerId);
+                    LedgerData ledgerData = (LedgerData) invocation.callRealMethod();
                     ledgerMetadataIndex.delete(ledgerId);
-                    ledgerMetadataIndex.flush();
+                    ledgerMetadataIndex.removeDeletedLedgers();
                     return ledgerData;
                 }
             });
-
             actualValue = ledgerMetadataIndex.setFenced(ledgerId);
         } else {
             actualValue = ledgerMetadataIndex.setFenced(ledgerId);

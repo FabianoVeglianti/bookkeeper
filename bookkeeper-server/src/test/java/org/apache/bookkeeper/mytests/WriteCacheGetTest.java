@@ -39,6 +39,7 @@ public class WriteCacheGetTest {
         return Arrays.asList(new Object[][]{
                 {0, 0, containedSizeBuffer, null},
                 {-1, -1, null, IllegalArgumentException.class},
+                {0, 0, null, null},
         });
     }
 
