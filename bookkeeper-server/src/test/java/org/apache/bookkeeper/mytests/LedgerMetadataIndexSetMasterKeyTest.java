@@ -43,7 +43,7 @@ public class LedgerMetadataIndexSetMasterKeyTest {
                 {0, nonEmptyMasterKey, false, true, null, true, true},
                 //tests per eseguire tutti i rami nel caso in cui ci sia una password già settata e non vuota
                 {0, nonEmptyMasterKey, true, false, null, false, true},
-                {0, nonEmptyMasterKey, true, false, null, true, false},
+                {0, nonEmptyMasterKey, true, false, null, true, false}
         });
     }
 

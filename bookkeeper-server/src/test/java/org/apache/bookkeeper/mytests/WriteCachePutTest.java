@@ -43,7 +43,8 @@ public class WriteCachePutTest {
                 {0, -1, null, false, NullPointerException.class, false},
                 {-1, 0, containedSizeBuffer, false, IllegalArgumentException.class, false},
                 {0, 0, oversizeBuffer, false, null, false},
-                {0, 0, oversizeBuffer, false, null, true}
+                {0, 0, containedSizeBuffer, false, null, true},
+                {0, 0, containedSizeBuffer, true, null, false}
         });
     }
 

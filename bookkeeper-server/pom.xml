@@ -193,6 +193,7 @@
       <version>1.6.2</version>
       <type>maven-plugin</type>
     </dependency>
+
   </dependencies>
 
   <build>
@@ -346,6 +347,33 @@
             </plugin>
           </plugins>
         </pluginManagement>
+      </build>
+    </profile>
+    <profile>
+      <id>data-flow-test</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <argLine>
+                -javaagent:${ba-dua.dir}/ba-dua-agent-rt-0.4.1-SNAPSHOT-all.jar
+                -Xbootclasspath/p:${ba-dua.dir}/ba-dua-agent-rt-0.4.1-SNAPSHOT-all.jar
+              </argLine>
+            </configuration>
+          </plugin>
+        </plugins>
       </build>
     </profile>
   </profiles>
